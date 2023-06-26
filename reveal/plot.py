@@ -20,3 +20,5 @@ def plot_2D(widget):
     ax = fig.add_subplot(111)
     return ax,canvas,fig
     
+def gcode():
+    pass

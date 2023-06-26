@@ -8,7 +8,7 @@ import threading as th
 import zhinst
 import numpy as np
 import time
-import basic.plot
+import reveal.plot
 import sys
 import clr
 import re
@@ -133,14 +133,14 @@ def pid_approach(device_id,motor,motor_id,prograss,widget_1,aux_widget,
         if(setpoint_value==1):
             while(vol >= setpoint and approach_state == 1):
                 # 步进前进
-                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Increase,60000)
+                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Decrease,60000)
                 # 获取新的vol、aux数值
                 vol_data = daq.getSample("/%s/demods/%d/sample" % (labone, 0))
                 vol = np.abs(vol_data['x'][0]+1j*vol_data['y'][0])
                 aux = daq.get('/%s/pids/%d/value'%(labone,0))
                 aux_out=aux['dev4346']['pids']['0']['value']['value'][0]
-                ax,canvas,fig = basic.plot.plot_2D(widget_1)
-                ax_2,canvas_2,fig_2 = basic.plot.plot_2D(aux_widget)
+                ax,canvas,fig = reveal.plot.plot_2D(widget_1)
+                ax_2,canvas_2,fig_2 = reveal.plot.plot_2D(aux_widget)
                 if(len(time_x)<=100):
                     time_x.append(time.time()-time_start)
                     step_x.append(motor.GetPosition(InertialMotorStatus.MotorChannels.Channel1))
@@ -172,7 +172,7 @@ def pid_approach(device_id,motor,motor_id,prograss,widget_1,aux_widget,
             motor.SetSettings(currentDeviceSettings, True, True)
             while(aux_out-approach_aux_point > 0.1 and approach_state == 1):
                 # 步进前进
-                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Increase,60000)
+                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Decrease,60000)
                 # 获取新的vol、aux数值
                 vol_data = daq.getSample("/%s/demods/%d/sample" % (labone, 0))
                 vol = np.abs(vol_data['x'][0]+1j*vol_data['y'][0])
@@ -181,8 +181,8 @@ def pid_approach(device_id,motor,motor_id,prograss,widget_1,aux_widget,
                 time.sleep(delaytime)
                 print(motor.GetPosition(InertialMotorStatus.MotorChannels.Channel1))
                 # print(dll.MCL_SingleReadZ(self.mcl))
-                ax,canvas,fig = basic.plot.plot_2D(widget_1)
-                ax_2,canvas_2,fig_2 = basic.plot.plot_2D(aux_widget)
+                ax,canvas,fig = reveal.plot.plot_2D(widget_1)
+                ax_2,canvas_2,fig_2 = reveal.plot.plot_2D(aux_widget)
                 if(len(time_x)<=100):
                     time_x.append(time.time()-time_start)
                     step_x.append(motor.GetPosition(InertialMotorStatus.MotorChannels.Channel1))
@@ -211,14 +211,14 @@ def pid_approach(device_id,motor,motor_id,prograss,widget_1,aux_widget,
         elif(setpoint_value==2):
             while(vol <= setpoint and approach_state == 1):
                 # 步进前进
-                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Increase,60000)
+                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Decrease,60000)
                 # 获取新的vol、aux数值
                 vol_data = daq.get('/%s/auxouts/%d/value'%(labone,0)) # pid auouts
                 vol = vol_data["dev4346"]["auxouts"]["0"]["value"]["value"][0]
                 aux = daq.get('/%s/pids/%d/value'%(labone,1))
                 aux_out = aux['dev4346']['pids']['1']['value']['value'][0] 
-                ax,canvas,fig = basic.plot.plot_2D(widget_1)
-                ax_2,canvas_2,fig_2 = basic.plot.plot_2D(aux_widget)
+                ax,canvas,fig = reveal.plot.plot_2D(widget_1)
+                ax_2,canvas_2,fig_2 = reveal.plot.plot_2D(aux_widget)
                 if(len(time_x)<=100):
                     time_x.append(time.time()-time_start)
                     step_x.append(motor.GetPosition(InertialMotorStatus.MotorChannels.Channel1))
@@ -250,7 +250,7 @@ def pid_approach(device_id,motor,motor_id,prograss,widget_1,aux_widget,
             motor.SetSettings(currentDeviceSettings, True, True)
             while(aux_out-approach_aux_point > 0.1 and approach_state == 1):
                 # 步进前进
-                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Increase,60000)
+                motor.Jog(InertialMotorStatus.MotorChannels.Channel1,InertialMotorJogDirection.Decrease,60000)
                 # 获取新的vol、aux数值
                 vol_data = daq.get('/%s/auxouts/%d/value'%(labone,0)) # pid auouts
                 vol = vol_data["dev4346"]["auxouts"]["0"]["value"]["value"][0]
@@ -259,8 +259,8 @@ def pid_approach(device_id,motor,motor_id,prograss,widget_1,aux_widget,
                 time.sleep(delaytime)
                 print(motor.GetPosition(InertialMotorStatus.MotorChannels.Channel1))
                 # print(dll.MCL_SingleReadZ(self.mcl))
-                ax,canvas,fig = basic.plot.plot_2D(widget_1)
-                ax_2,canvas_2,fig_2 = basic.plot.plot_2D(aux_widget)
+                ax,canvas,fig = reveal.plot.plot_2D(widget_1)
+                ax_2,canvas_2,fig_2 = reveal.plot.plot_2D(aux_widget)
                 if(len(time_x)<=100):
                     time_x.append(time.time()-time_start)
                     step_x.append(motor.GetPosition(InertialMotorStatus.MotorChannels.Channel1))
@@ -308,9 +308,9 @@ def no_pid_approach(motor,motor_id,approach_speed,approach_acceleration,approach
     motor.SetSettings(currentDeviceSettings, True, True)
     time.sleep(3)
     if mode == 1:
-        mode_jog = InertialMotorJogDirection.Increase
-    else:
         mode_jog = InertialMotorJogDirection.Decrease
+    else:
+        mode_jog = InertialMotorJogDirection.Increase
     QApplication.processEvents()  # 强制刷新窗口
     # 步进前进
     motor.Jog(InertialMotorStatus.MotorChannels.Channel1,mode_jog,60000)

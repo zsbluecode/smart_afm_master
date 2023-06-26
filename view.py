@@ -1,14 +1,15 @@
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
 import sys
 from PyQt5.QtWidgets import QApplication
 from module import deviceconnection,parasetting,sweep,pidsetting,approach,scan,class_afm
 import ctypes
 import zhinst
 import clr
+import reveal.edit_Gcode
 # 创建QApplication对象
 app = QApplication(sys.argv)
 afm = class_afm.afm()
+readG = reveal.edit_Gcode.Gcode()
 
 sys.path.append(r"C:\Program Files\Thorlabs\Kinesis")
 clr.AddReference("Thorlabs.MotionControl.DeviceManagerCLI")
@@ -23,7 +24,6 @@ from Thorlabs.MotionControl.GenericMotorCLI.ControlParameters import *
 from Thorlabs.MotionControl.GenericMotorCLI.AdvancedMotor import *
 from Thorlabs.MotionControl.GenericMotorCLI.KCubeMotor import *
 from Thorlabs.MotionControl.GenericMotorCLI.Settings import *
-
 
 # 加载UI文件
 ui = uic.loadUi("ui.ui")
@@ -40,24 +40,24 @@ try:
     (daq, labone, props) = zhinst.utils.create_api_session(ui.lineEdit_labone_no.text(), apilevel_example, server_host=server_host, server_port=server_port)
     zhinst.utils.api_server_version_check(daq)
     ui.label_labone_state.setText("已连接")
-    # 设定Labone初始值
-    exp_setting = [
-    ["/%s/oscs/%d/freq" % (labone, 0), 32536.47],
-    ["/%s/demods/%d/enable" % (labone, 0), 1],
-    ["/%s/sigouts/%d/autorange"%(labone,0), 1],
-    ["/%s/demods/%d/rate" % (labone, 0), 100000],
-    ["/%s/demods/%d/adcselect" % (labone, 0), 1],
-    ["/%s/demods/%d/bindwidth" % (labone, 0), 100],
-    ["/%s/demods/%d/oscselect" % (labone, 0), 0],
-    ["/%s/sigouts/%d/on" % (labone, 0), 1],
-    ["/%s/sigouts/%d/enables/%d" % (labone, 0, 0), 1],
-    ["/%s/sigouts/%d/enables/%d" % (labone, 0, 1), 0],
-    ["/%s/sigouts/%d/range" % (labone, 0), 1],
-    ["/%s/sigouts/%d/amplitudes/%d" % (labone, 0, 0),0.01,],
-    ["/%s/sigins/%d/scaling"%(labone,0),1,]
-    ]
-    daq.set(exp_setting)
-    daq.sync()
+    # # 设定Labone初始值
+    # exp_setting = [
+    # ["/%s/oscs/%d/freq" % (labone, 0), 32536.47],
+    # ["/%s/demods/%d/enable" % (labone, 0), 1],
+    # ["/%s/sigouts/%d/autorange"%(labone,0), 1],
+    # ["/%s/demods/%d/rate" % (labone, 0), 100000],
+    # ["/%s/demods/%d/adcselect" % (labone, 0), 1],
+    # ["/%s/demods/%d/bindwidth" % (labone, 0), 100],
+    # ["/%s/demods/%d/oscselect" % (labone, 0), 0],
+    # ["/%s/sigouts/%d/on" % (labone, 0), 1],
+    # ["/%s/sigouts/%d/enables/%d" % (labone, 0, 0), 1],
+    # ["/%s/sigouts/%d/enables/%d" % (labone, 0, 1), 0],
+    # ["/%s/sigouts/%d/range" % (labone, 0), 1],
+    # ["/%s/sigouts/%d/amplitudes/%d" % (labone, 0, 0),0.01,],
+    # ["/%s/sigins/%d/scaling"%(labone,0),1,]
+    # ]
+    # daq.set(exp_setting)
+    # daq.sync()
 except:
     ui.label_labone_state.setText("未连接")
 # Motor
@@ -184,7 +184,6 @@ ui.pushButton_usb_camera_open.clicked.connect(lambda: approach.camera_open(ui.la
 ui.pushButton_usb_camera_take.clicked.connect(lambda: approach.camera_take(ui.label_use_camera))
 ui.pushButton_usb_camera_close.clicked.connect(lambda: approach.camera_close(ui.label_use_camera))
 
-
 ui.pushButton_approach.clicked.connect(lambda: approach.pid_approach(ui.lineEdit_labone_no.text(),motor,motor_id,
                                         ui.progressBar_approach,ui.label_approach_picture,ui.label_approach_pid_picture,
                 int(ui.lineEdit_approach_speed.text()),int(ui.lineEdit_approach_acceleration.text()),
@@ -207,9 +206,29 @@ ui.pushButton_approach_stop.clicked.connect(lambda: approach.approach_stop())
 ui.pushButton_scan.clicked.connect(lambda: scan.scan(dll,handle,ui.progressBar_scan_picture,ui.label_scan_picture,
                             int(ui.lineEdit_scan_width.text()),int(ui.lineEdit_scan_length.text()),
                             int(ui.lineEdit_scan_sample.text()),float(ui.lineEdit_scan_delaytime.text()),
-                            ui.comboBox_scan_mode.currentText(),ui.label_mcl_state))
+                            ui.comboBox_scan_mode.currentText(),ui.label_mcl_state,ui.label_scan_picture_double,ui.label_scan_picture_voltage))
 ui.pushButton_scan_stop.clicked.connect(lambda: scan.scan_stop())
-ui.pushButton_scan_save.clicked.connect(lambda: scan.scan_save(ui.label_scan_picture))
+ui.pushButton_scan_save.clicked.connect(lambda: scan.scan_save(ui.label_scan_picture,int(ui.lineEdit_picture_point.text())))
+
+# Gcode部分按钮
+# 先设置类属性，后直接调用类方法
+ui.pushButton_lead_gcode.clicked.connect(lambda:(setattr(readG, 'textGcode',ui.textEdit_gcode),
+                                                 setattr(readG ,'errorGcode',ui.textEdit_Errortext),
+                                                 readG.lead_Gcode()))
+ui.pushButton_edit_gcode.clicked.connect(lambda:(setattr(readG,'textGcode',ui.textEdit_gcode),
+                                                 setattr(readG,'errorGcode',ui.textEdit_Errortext),
+                                                 readG.editGcode())
+                                                 )
+ui.pushButton_simulate_gcode.clicked.connect(lambda:(setattr(readG,'textGcode',ui.textEdit_gcode),
+                                                 setattr(readG,'errorGcode',ui.textEdit_Errortext),
+                                                 setattr(readG,'simulationPictureGcode_2D',ui.label_2D),
+                                                 readG.simulateGcode())
+                                                 )
+ui.pushButton_printGcode.clicked.connect(lambda:(setattr(readG,'textGcode',ui.textEdit_gcode),
+
+                                                 readG.runGcode()))
+# 测试
+
 
 # 运行程序
 ui.show()

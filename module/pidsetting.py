@@ -1,6 +1,6 @@
 import zhinst
 import time
-import basic.plot
+import reveal.plot
 import re
 from PyQt5 import QtWidgets
 # pid计算只负责把输入的Q、amplitude、frequency进行计算，不管他们是怎么来的
@@ -205,7 +205,7 @@ def pid_calculate(device_id,pid_mode,inputchannel,inputchannel_number,
     step_x = result["/step"][0]["x"]
     step_grid = result["/step"][0]["grid"]
 
-    ax,canvas,fig = basic.plot.plot_2D(label_pid_picture)
+    ax,canvas,fig = reveal.plot.plot_2D(label_pid_picture)
     ax.set_title("PID/PLL阶跃图像",fontfamily='SimHei')
     ax.plot(step_grid,step_x)
     canvas.draw()
@@ -241,9 +241,10 @@ def pid_close(device_id,pid_value,pid_index):
 
 # 通道1
 def load_para_1(ui):
-     filePath, filetype = QtWidgets.QFileDialog.getOpenFileName(ui, "选取文件", "./",
-                                                                        "*.*")
-     file2 = open(filePath, "r")
+    #  filePath, filetype = QtWidgets.QFileDialog.getOpenFileName(ui, "选取文件", "./",
+    #                                                                     "*.*")
+    #  file2 = open(filePath, "r")
+    pass
 
 def pid_calculate_1(device,pid_mode,inputchannel,inputchannel_number,
                     outputchannel,outputchannel_number,pid_module,

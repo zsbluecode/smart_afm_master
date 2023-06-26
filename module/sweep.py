@@ -1,6 +1,6 @@
 import time
 import numpy as np
-import basic.calculate_Q,basic.plot
+import arithmetic.calculate_Q,reveal.plot
 from PyQt5.QtWidgets import QApplication,QMessageBox,QFileDialog
 import zhinst
 import re
@@ -80,7 +80,7 @@ def sweep(device_id,progress_bar,frequency_text,Q_text,amplitude_text,sweep_labe
             R=R.tolist()
             frequency=frequency.tolist()
             max_r = max(R)
-            Q_value = basic.calculate_Q.calculate_data(frequency,R)
+            Q_value = arithmetic.calculate_Q.calculate_data(frequency,R)
         sweep_x = frequency
         sweep_y = r
         h_frequency = frequency[R.index(max(R))]
@@ -91,11 +91,11 @@ def sweep(device_id,progress_bar,frequency_text,Q_text,amplitude_text,sweep_labe
         now = datetime.datetime.now()
         # 将数据和时间拼接成一行文本
         line = f"{now}: {h_frequency} {Q_value} {max_r}\n"
-        # 打开文件并追加数据
-        with open("basic/data/sweep.txt", "a") as file:
-            # 写入数据行
-            file.write(line)
-        ax,canvas,fig = basic.plot.plot_2D(sweep_label)
+        # # 打开文件并追加数据
+        # with open("basic/data/sweep.txt", "a") as file:
+        #     # 写入数据行
+        #     file.write(line)
+        ax,canvas,fig = reveal.plot.plot_2D(sweep_label)
         ax.set_title("扫频图像",fontfamily='SimHei')
         ax.plot(sweep_x,sweep_y)
         canvas.draw()
